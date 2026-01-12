@@ -7,10 +7,19 @@ export enum AvatarStyle {
   COMIC = '美漫风格'
 }
 
+export interface HistoryItem {
+  id: string;
+  originalImage: string;
+  generatedAvatar: string;
+  style: AvatarStyle;
+  timestamp: number;
+}
+
 export interface AppState {
   originalImage: string | null;
   generatedAvatar: string | null;
   isGenerating: boolean;
   style: AvatarStyle;
   error: string | null;
+  history: HistoryItem[];
 }
