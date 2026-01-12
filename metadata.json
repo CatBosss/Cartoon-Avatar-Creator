@@ -1,0 +1,5 @@
+{
+  "name": "卡通头像生成器 (Cartoon Avatar Creator)",
+  "description": "基于您的照片生成高相似度的卡通头像。支持多种风格选择，包括皮克斯风格、2D矢量图、二次元动漫等。",
+  "requestFramePermissions": []
+}
