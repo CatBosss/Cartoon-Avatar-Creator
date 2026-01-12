@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { generateAvatar } from './services/geminiService';
 import { AvatarStyle, AppState } from './types';
 import { 
@@ -7,31 +7,71 @@ import {
   ArrowPathIcon, 
   ArrowDownTrayIcon, 
   SparklesIcon,
-  ExclamationCircleIcon
+  ExclamationCircleIcon,
+  ArrowUpTrayIcon
 } from '@heroicons/react/24/outline';
 
+interface ExtendedAppState extends AppState {
+  isDragging: boolean;
+}
+
 const App: React.FC = () => {
-  const [state, setState] = useState<AppState>({
+  const [state, setState] = useState<ExtendedAppState>({
     originalImage: null,
     generatedAvatar: null,
     isGenerating: false,
     style: AvatarStyle.PIXAR,
     error: null,
+    isDragging: false,
   });
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const processFile = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      setState(prev => ({ ...prev, error: "请上传有效的图片文件。" }));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setState(prev => ({ 
+        ...prev, 
+        originalImage: reader.result as string, 
+        error: null,
+        generatedAvatar: null 
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setState(prev => ({ 
-          ...prev, 
-          originalImage: reader.result as string, 
-          error: null,
-          generatedAvatar: null 
-        }));
-      };
-      reader.readAsDataURL(file);
+      processFile(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setState(prev => ({ ...prev, isDragging: true }));
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setState(prev => ({ ...prev, isDragging: false }));
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setState(prev => ({ ...prev, isDragging: false }));
+    
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processFile(file);
     }
   };
 
@@ -82,27 +122,44 @@ const App: React.FC = () => {
           {/* Original Image Card */}
           <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
             <h2 className="text-sm font-semibold text-slate-500 mb-3 uppercase tracking-wider">原始照片</h2>
-            <div className="aspect-[3/4] rounded-xl overflow-hidden bg-slate-100 flex items-center justify-center border-2 border-dashed border-slate-300 relative group">
+            <div 
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`aspect-[3/4] rounded-xl overflow-hidden flex items-center justify-center border-2 border-dashed transition-all relative group ${
+                state.isDragging 
+                ? 'border-indigo-500 bg-indigo-50/50 scale-[0.98]' 
+                : 'border-slate-300 bg-slate-100'
+              }`}
+            >
               {state.originalImage ? (
                 <img src={state.originalImage} alt="Original" className="w-full h-full object-cover" />
               ) : (
-                <div className="text-center p-6">
-                  <CameraIcon className="w-12 h-12 text-slate-400 mx-auto mb-2" />
-                  <p className="text-sm text-slate-500">点击下方按钮上传照片</p>
+                <div className="text-center p-6 pointer-events-none">
+                  <ArrowUpTrayIcon className={`w-12 h-12 mx-auto mb-2 transition-transform ${state.isDragging ? 'text-indigo-600 scale-110' : 'text-slate-400'}`} />
+                  <p className={`text-sm font-medium ${state.isDragging ? 'text-indigo-600' : 'text-slate-500'}`}>
+                    {state.isDragging ? '松开以上传图片' : '拖拽图片到这里 或 点击下方上传'}
+                  </p>
                 </div>
               )}
-              <label className="absolute inset-0 cursor-pointer opacity-0 group-hover:bg-black/10 transition-all"></label>
+              
+              {/* Overlay for drag effect when image exists */}
+              {state.originalImage && state.isDragging && (
+                <div className="absolute inset-0 bg-indigo-600/20 backdrop-blur-[2px] flex items-center justify-center border-4 border-indigo-600 rounded-lg">
+                   <ArrowUpTrayIcon className="w-16 h-16 text-white animate-bounce" />
+                </div>
+              )}
             </div>
             <div className="mt-4">
               <input
                 type="file"
-                id="file-upload"
+                ref={fileInputRef}
                 className="hidden"
                 accept="image/*"
                 onChange={handleFileUpload}
               />
               <button 
-                onClick={() => document.getElementById('file-upload')?.click()}
+                onClick={() => fileInputRef.current?.click()}
                 className="w-full py-2.5 px-4 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
               >
                 <CameraIcon className="w-5 h-5" />
@@ -194,6 +251,10 @@ const App: React.FC = () => {
           <div className="mt-12 pt-6 border-t border-slate-100">
             <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">使用提示</h3>
             <ul className="text-sm text-slate-500 space-y-2">
+              <li className="flex gap-2">
+                <span className="text-indigo-400">•</span>
+                直接拖拽图片到左侧框内即可快速上传
+              </li>
               <li className="flex gap-2">
                 <span className="text-indigo-400">•</span>
                 使用正面、清晰、光线均匀的照片效果最佳
