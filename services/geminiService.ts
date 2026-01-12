@@ -53,7 +53,28 @@ export const generateAvatar = async (
       - Use bold, varied-weight ink lines (Inking style).
       - Apply classic Ben-Day dots or halftone patterns for shading.
       - Emphasize heroic lighting and dramatic shadows (Chiaroscuro).
-      - Preserve the person's facial structure but stylized with the characteristic "rugged" or "heroic" aesthetic of classic Marvel/DC artists.`
+      - Preserve the person's facial structure but stylized with the characteristic "rugged" or "heroic" aesthetic of classic Marvel/DC artists.`,
+
+    [AvatarStyle.CYBERPUNK]: `
+      Transform this image into a gritty, futuristic Cyberpunk character.
+      - Use a high-contrast palette dominated by neon cyan, magenta, and electric purple.
+      - Incorporate subtle cybernetic enhancements or glowing technological patterns on the skin.
+      - Set the scene with cinematic night lighting and rain-slicked reflections.
+      - Maintain facial likeness while adding a futuristic 'tech-wear' aesthetic to the character's appearance.`,
+
+    [AvatarStyle.GOTHIC]: `
+      Transform this person into a dark, elegant Gothic Fantasy character.
+      - Use a moody, desaturated color palette with deep blacks, crimsons, and silvers.
+      - Apply dramatic, high-contrast shadows and Victorian-inspired clothing details (like lace or high collars).
+      - Give the skin a porcelain-like quality with a mysterious, ethereal atmosphere.
+      - Preserve the original facial features while evoking a sense of dark romanticism.`,
+
+    [AvatarStyle.CLAY]: `
+      Create a charming stop-motion claymation character based on this photo.
+      - Apply a tactile, handmade clay texture with visible fingerprints and slight surface imperfections.
+      - Use a vibrant, matte color palette and soft, warm studio lighting.
+      - Give the character physical-looking eyes and hair that appear sculpted from real modeling clay.
+      - Maintain a strong facial likeness but simplify it into the cute, round proportions characteristic of clay animation films like Wallace & Gromit.`
   };
 
   const systemInstruction = `

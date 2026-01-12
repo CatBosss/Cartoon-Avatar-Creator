@@ -4,7 +4,10 @@ export enum AvatarStyle {
   VECTOR = '2D 矢量矢量风',
   ANIME = '二次元动漫',
   SKETCH = '手绘素描',
-  COMIC = '美漫风格'
+  COMIC = '美漫风格',
+  CYBERPUNK = '赛博朋克风',
+  GOTHIC = '哥特幻想风',
+  CLAY = '粘土定格动画'
 }
 
 export interface HistoryItem {
